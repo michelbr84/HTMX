@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello World Elegante</title>
+  <title>GitHub HTMX Visualizer</title>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
   <style>
     * {
@@ -17,30 +17,127 @@
       background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       min-height: 100vh;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+      flex-direction: column;
     }
 
-    .container {
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #38ef7d;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    header input:focus {
+      border-color: #11998e;
+    }
+
+    .btn {
+      background: linear-gradient(to right, #11998e, #38ef7d);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .app-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    #sidebar {
+      width: 280px;
+      background: rgba(255, 255, 255, 0.95);
+      border-right: 1px solid rgba(0,0,0,0.1);
+      padding: 2rem 1rem;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    }
+
+    #sidebar h3 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    #sidebar ul {
+      list-style: none;
+    }
+
+    #sidebar li {
+      margin-bottom: 0.5rem;
+    }
+
+    #sidebar a {
+      color: #11998e;
+      text-decoration: none;
+      padding: 0.5rem;
+      display: block;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    #sidebar a:hover {
+      background: rgba(56, 239, 125, 0.1);
+    }
+
+    #main-content {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+    }
+
+    .content-container {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      padding: 4rem;
       width: 90%;
-      max-width: 600px;
+      max-width: 800px;
       text-align: center;
       transition: transform 0.3s ease;
     }
 
-    .container:hover {
+    .content-container:hover {
       transform: translateY(-5px);
     }
 
     h1 {
       color: #333;
       font-size: 3rem;
-      margin-bottom: 20px;
+      margin-bottom: 2rem;
       transition: all 0.5s ease;
     }
 
@@ -71,28 +168,19 @@
       color: #666;
       font-size: 1.2rem;
       line-height: 1.6;
-      margin-bottom: 30px;
+      margin-bottom: 3rem;
     }
 
-    .btn {
-      background: linear-gradient(to right, #11998e, #38ef7d);
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1rem;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    .greeting {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      color: #333;
+      animation: fadeIn 0.5s ease-in;
     }
 
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    }
-
-    .btn:active {
-      transform: scale(0.98);
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .htmx-indicator {
@@ -108,59 +196,75 @@
       pointer-events: none;
     }
 
-    .greeting {
-      font-size: 1.5rem;
-      margin-top: 20px;
-      color: #333;
-      animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     footer {
-      margin-top: 30px;
+      margin-top: 3rem;
       color: #888;
       font-size: 0.9rem;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      .app-container {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        max-height: 200px;
+      }
+
       h1 {
         font-size: 2.2rem;
       }
-     
-      .container {
-        padding: 25px;
+
+      .content-container {
+        padding: 2.5rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Hello <span class="highlight">World</span>!</h1>
-    <p>E aí! Página irada com HTMX. Clica no botão pra uma saudação personalizada! 🚀</p>
-    
-    <button class="btn" 
-            hx-get="/greeting" 
-            hx-target="#greeting-target" 
-            hx-swap="innerHTML"
-            hx-indicator="#spinner">
-      Saudação Personalizada
+  <header>
+    <input type="text" name="githubUrl" placeholder="Cole URL do GitHub ex: https://github.com/michelbr84/HTMX" />
+    <button class="btn" hx-post="/load-repo" hx-target="#sidebar" hx-swap="innerHTML" hx-indicator="#spinner">
+      🚀 Carregar Repo
     </button>
-    
-    <div id="spinner" class="htmx-indicator">
-      <p>Carregando...</p>
-    </div>
-    
-    <div id="greeting-target" class="greeting">
-      <!-- Conteúdo dinâmico vai aqui -->
-    </div>
-    
-    <footer>
-      <p>Desenvolvido com HTMX & Express.js</p>
-    </footer>
+  </header>
+  <div class="app-container">
+    <aside id="sidebar">
+      <h3>📂 Repositórios GitHub</h3>
+      <p>Cole uma URL GitHub acima e clique em carregar para ver os arquivos aqui!</p>
+    </aside>
+    <main id="main-content">
+      <div class="content-container">
+        <h1>Hello <span class="highlight">World</span>!</h1>
+        <p>E aí! Página irada com HTMX. Clica no botão pra uma saudação personalizada! 🚀</p>
+        
+        <button class="btn"
+                hx-get="/greeting" 
+                hx-target="#greeting-target" 
+                hx-swap="innerHTML"
+                hx-indicator="#spinner">
+          Saudação Personalizada
+        </button>
+        
+        <div id="spinner" class="htmx-indicator">
+          <p>Carregando...</p>
+        </div>
+        
+        <div id="greeting-target" class="greeting">
+          <!-- Conteúdo dinâmico vai aqui -->
+        </div>
+        
+        <footer>
+          <p>Desenvolvido com HTMX & Express.js</p>
+        </footer>
+      </div>
+    </main>
   </div>
 </body>
 </html>
