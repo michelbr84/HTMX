@@ -21,7 +21,7 @@ app.get('/greeting', (req, res) => {
     'Ciao, mondo! ',
     'Привет, мир! ',
     'שלום עולם! ',
-    '안녕, 세상! ',
+    '안녕하세요! ',
   ];
 
   const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -45,7 +45,7 @@ async function loadRepoHandler(req, res) {
   }
 
   // Extract user/repo from URL: https://github.com/user/repo
-  const match = repoUrl.match(/github\.com(?:\/|:)?([^\\/]+)\/([^\\/]+)/);
+  const match = repoUrl.match(/github\.com(?::\/|:)([^\/]+)\/([^\/]+)/);
   console.log('Regex match:', match);
   if (!match) {
     console.log('Invalid repo URL');
@@ -172,14 +172,14 @@ app.get('/list-dir', async (req, res) => {
 
     res.send(html);
   } catch (error) {
-    console.error('Erro ao listar diretórios:', error);
+    console.error('Error ao listar diretórios:', error);
     res.status(500).send('<ul><li style="color:red;">🚀 Erro ao carregar pasta</li></ul>');
   }
 });
 
-// 🚀 ETAPA 5-6: Load file content with preview/code toggle
+// 🚀 ETAPA 5-6: Load file content with preview/code split view (always both, no mode toggle)
 app.get('/load-file', async (req, res) => {
-  const { path: filePath, user, repo, mode = 'preview' } = req.query;
+  const { path: filePath, user, repo } = req.query;
 
   if (!filePath || !user || !repo) {
     return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚀 Parâmetros inválidos!</div>');
@@ -218,11 +218,11 @@ app.get('/load-file', async (req, res) => {
     let content = await contentRes.text();
 
     const ext = filePath.split('.').pop()?.toLowerCase();
-    const isHTML = ['html','htm'].includes(ext);
+    const isHTML = ['html', 'htm'].includes(ext);
 
     // Escaping
     let escaped;
-    if (isHTML && mode === 'preview') {
+    if (isHTML) {
       // Minimal escape for srcdoc iframe
       escaped = content.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\\/g, '&amp;');
     } else {
@@ -230,76 +230,52 @@ app.get('/load-file', async (req, res) => {
       escaped = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Toggle buttons
-    const previewBtnClass = (mode === 'preview' ? 'active' : '') + (isHTML ? '' : ' disabled');
-    const previewDisabled = !isHTML ? 'disabled' : '';
-    const previewHref = !isHTML ? '#' : `/load-file?path=${encodeURIComponent(filePath)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&mode=preview`;
+    // Language map for Prism
+    const langMap = {
+      js: 'javascript', jsx: 'jsx', ts: 'typescript', tsx: 'tsx',
+      css: 'css', scss: 'scss', less: 'less',
+      json: 'json',
+      md: 'markdown', mdx: 'markdown',
+      py: 'python', rb: 'ruby', go: 'go', rs: 'rust', java: 'java',
+      sh: 'bash', yaml: 'yaml', yml: 'yaml',
+      txt: 'text', log: 'text'
+    };
+    const lang = langMap[ext] || 'text';
 
-    const codeBtnClass = mode === 'code' ? 'active' : '';
-
-    const toggleHTML = `
-      <div class="mode-toggle">
-        <button class="btn-mode ${previewBtnClass}" 
-                hx-get="${previewHref}" 
-                hx-target="#main-content" 
-                hx-swap="innerHTML"
-                hx-push-url="true"
-                ${previewDisabled}>
-          📄 Preview
-        </button>
-        <button class="btn-mode ${codeBtnClass}" 
-                hx-get="/load-file?path=${encodeURIComponent(filePath)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&mode=code" 
-                hx-target="#main-content" 
-                hx-swap="innerHTML"
-                hx-push-url="true">
-          💻 Código
-        </button>
-      </div>
-    `;
-
-    // Title
-    const title = `<h2 class="file-title">${mode === 'preview' ? '📄 Preview' : '💻 Código'}: ${filePath}</h2>`;
-
-    let contentHTML;
-    if (mode === 'preview' && isHTML) {
-      contentHTML = `
-        <div class="preview-controls">
-          <button class="btn-preview-size btn-preview-compact">40%</button>
-          <button class="btn-preview-size btn-preview-normal active">70%</button>
-          <button class="btn-preview-size btn-preview-large">90%</button>
-          <button class="btn-preview-fullscreen">⛶</button>
-        </div>
-        <div class="preview-container preview-normal">
+    let previewHTML, codeHTML, extra = '';
+    if (isHTML) {
+      previewHTML = `
+        <div class="preview-container">
           <iframe srcdoc="${escaped}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" frameborder="0"></iframe>
         </div>
       `;
     } else {
-      // Code view
-      const langMap = {
-        js: 'javascript', jsx: 'jsx', ts: 'typescript', tsx: 'tsx',
-        css: 'css', scss: 'scss', less: 'less',
-        json: 'json',
-        md: 'markdown', mdx: 'markdown',
-        py: 'python', rb: 'ruby', go: 'go', rs: 'rust', java: 'java',
-        sh: 'bash', yaml: 'yaml', yml: 'yaml',
-        txt: 'text', log: 'text'
-      };
-      const lang = langMap[ext] || 'text';
-
-      let extra = '';
-      if (mode === 'preview' && !isHTML) {
-        extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">🚀 Preview disponível apenas para arquivos .html/.htm</p>';
-      }
-
-      contentHTML = `
-        <div class="code-view">
-          <pre><code class="language-${lang}">${escaped}</code></pre>
-          ${extra}
-        </div>
-      `;
+      previewHTML = '<div class="no-preview">Preview disponível apenas para arquivos HTML 🚀</div>';
+      extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">Preview disponível apenas para arquivos .html/.htm</p>';
     }
 
-    res.send(title + toggleHTML + contentHTML);
+    codeHTML = `
+      <div class="code-view">
+        <pre><code class="language-${lang}">${escaped}</code></pre>
+        ${extra}
+      </div>
+    `;
+
+    // Full template: title + split panels
+    const title = `<h2 class="file-title">${filePath}</h2>`;
+    const template = `
+      ${title}
+      <div class="split-main">
+        <div id="preview-panel">
+          ${previewHTML}
+        </div>
+        <div id="code-panel">
+          ${codeHTML}
+        </div>
+      </div>
+    `;
+
+    res.send(template);
   } catch (error) {
     console.error('Erro ao carregar arquivo:', error);
     res.status(500).send(`<div style="color:red; text-align:center; padding:2rem;">🚀 Erro ao carregar ${filePath}: ${error.message}</div>`);
