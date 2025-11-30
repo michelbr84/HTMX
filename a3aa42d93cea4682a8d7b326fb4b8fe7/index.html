@@ -357,14 +357,12 @@
 </head>
 <body>
   <header>
-    <input type="text" name="repoUrl" placeholder="Cole URL do GitHub ex: https://github.com/michelbr84/HTMX" />
-    <button class="btn" 
-      hx-post="/load-repo" 
-      hx-target="#repo-list" 
-      hx-swap="innerHTML"
-      hx-indicator="#sidebar-spinner">
-      🚀 Carregar Repo
-    </button>
+    <form hx-post="/load-repo" hx-target="#repo-list" hx-swap="innerHTML" hx-indicator="#sidebar-spinner">
+      <input type="text" name="repoUrl" placeholder="Cole URL do GitHub ex: https://github.com/michelbr84/HTMX">
+      <button type="submit" class="btn">
+        🚀 Carregar Repo
+      </button>
+    </form>
   </header>
   <div class="app-container">
     <aside id="sidebar">
@@ -380,27 +378,27 @@
       <div class="content-container">
         <h1>Hello <span class="highlight">World</span>!</h1>
         <p>E aí! Páginal irada com HTMX. Clique no botão pra uma saudação personalizada! 🚀</p>
-       
+        
         <button class="btn"
                 hx-get="/greeting" 
-                hx-target="#greeting-target" 
+                hx-target="#greeting-target"
                 hx-swap="innerHTML"
                 hx-indicator="#spinner">
           Saudação Personalizada
         </button>
-       
+        
         <div id="spinner" class="htmx-indicator">
           <p>Carregando...</p>
         </div>
-       
+        
         <div id="greeting-target" class="greeting">
           <!-- Conteúdo dinâmico vai aqui -->
         </div>
-       
+        
         <footer>
           <p>Desenvolvido com HTMX & Express.js</p>
         </footer>
-      Ascending</div>
+      </div>
     </main>
   </div>
 </body>
