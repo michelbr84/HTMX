@@ -20,7 +20,7 @@ app.get('/greeting', (req, res) => {
     'Ciao, mondo!',
     'Привет, мир!',
     'שלום עולם',
-    'مرحبا بالعالم'
+    'नमस्ते दुनिया'
   ];
 
   const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -35,28 +35,36 @@ app.get('/greeting', (req, res) => {
 
 // 🚀 ETAPA 1-4: Load repo + recursive dir listing
 async function loadRepoHandler(req, res) {
+  console.log('=== LOAD REPO ===', { method: req.method, body: req.body, query: req.query });
   const repoUrl = req.body.repoUrl || req.query.repoUrl;
 
   if (!repoUrl) {
+    console.log('Missing repoUrl');
     return res.status(400).send('<p style="color:red;">🚀 URL do GitHub obrigatória!</p>');
   }
 
   // Extract user/repo from URL: https://github.com/user/repo
-  const match = repoUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\?]+)/);
+  const match = repoUrl.match(/github\.com[\/:]?([^\/]+)\/([^\/\?]+)/);
+  console.log('Regex match:', match);
   if (!match) {
-    return res.status(400).send('<p style="color:red;">🚀 URL GitHub inválida! Use: https://github.com/USER/REPO</p>');
+    console.log('Invalid repo URL');
+    return res.status(400).send('<p style="color:red;">🚀 URL GitHub inválida! Use: https://github.com/USUARIO/REPO</p>');
   }
 
   const [, user, repo] = match;
+  console.log('Parsed:', { user, repo });
 
   try {
     const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents`;
 
     const fetchResponse = await fetch(apiUrl, {
       headers: {
-        'User-Agent': 'HTMX-GitHub-Visualizer/1.0'
+        'User-Agent': 'HTMX-GitHub-Visualizer/1.0',
+        'Accept': 'application/vnd.github.v3+json'
       }
     });
+
+    console.log('GitHub API status:', fetchResponse.status, apiUrl);
 
     if (!fetchResponse.ok) {
       throw new Error(`API Error: ${fetchResponse.status}`);
@@ -72,26 +80,26 @@ async function loadRepoHandler(req, res) {
       const icon = file.type === 'dir' ? '📁' : '📄';
       if (file.type === 'dir') {
         html += `
-          <details>
-            <summary class="folder-toggle">${icon} ${file.name}</summary>
-            <div class="children" 
-                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
-                 hx-trigger="revealed" 
-                 hx-swap="innerHTML"
-                 hx-indicator="#sidebar-spinner">
-            </div>
-          </details>
+        <details>
+          <summary class="folder-toggle">${icon} ${file.name}</summary>
+          <div class="children" 
+               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
+               hx-trigger="revealed" 
+               hx-swap="innerHTML"
+               hx-indicator="#sidebar-spinner">
+          </div>
+        </details>
         `;
       } else {
         html += `
-          <li>
-            <a class="file-link" 
-               hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-               hx-target="#main-content" 
-               hx-swap="innerHTML">
-              ${icon} ${file.name}
-            </a>
-          </li>
+        <li>
+          <a class="file-link" 
+             hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+             hx-target="#main-content" 
+             hx-swap="innerHTML">
+             ${icon} ${file.name}
+          </a>
+        </li>
         `;
       }
     });
@@ -99,7 +107,7 @@ async function loadRepoHandler(req, res) {
 
     res.send(html);
   } catch (error) {
-    console.error('Erro ao carregar repo:', error);
+    console.error('Load repo error:', error);
     res.status(500).send(`<p style="color:red;">🚀 Erro ao carregar ${user}/${repo}: ${error.message}</p>`);
   }
 }
@@ -121,7 +129,8 @@ app.get('/list-dir', async (req, res) => {
 
     const fetchResponse = await fetch(apiUrl, {
       headers: {
-        'User-Agent': 'HTMX-GitHub-Visualizer/1.0'
+        'User-Agent': 'HTMX-GitHub-Visualizer/1.0',
+        'Accept': 'application/vnd.github.v3+json'
       }
     });
 
@@ -137,25 +146,25 @@ app.get('/list-dir', async (req, res) => {
       const icon = item.type === 'dir' ? '📁' : '📄';
       if (item.type === 'dir') {
         html += `
-          <details>
-            <summary class="folder-toggle">${icon} ${item.name}</summary>
-            <div class="children" 
-                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
-                 hx-trigger="revealed" 
-                 hx-swap="innerHTML">
-            </div>
-          </details>
+        <details>
+          <summary class="folder-toggle">${icon} ${item.name}</summary>
+          <div class="children" 
+               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
+               hx-trigger="revealed" 
+               hx-swap="innerHTML">
+          </div>
+        </details>
         `;
       } else {
         html += `
-          <li>
-            <a class="file-link" 
-               hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-               hx-target="#main-content" 
-               hx-swap="innerHTML">
-              ${icon} ${item.name}
-            </a>
-          </li>
+        <li>
+          <a class="file-link" 
+             hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+             hx-target="#main-content" 
+             hx-swap="innerHTML">
+             ${icon} ${item.name}
+          </a>
+        </li>
         `;
       }
     });
@@ -179,7 +188,10 @@ app.get('/load-file', async (req, res) => {
   try {
     const contentsUrl = `https://api.github.com/repos/${user}/${repo}/contents/${encodeURIComponent(filePath)}`;
     const fileInfoRes = await fetch(contentsUrl, {
-      headers: { 'User-Agent': 'HTMX-GitHub-Visualizer/1.0' }
+      headers: { 
+        'User-Agent': 'HTMX-GitHub-Visualizer/1.0',
+        'Accept': 'application/vnd.github.v3+json'
+      }
     });
 
     if (!fileInfoRes.ok) {
@@ -193,7 +205,10 @@ app.get('/load-file', async (req, res) => {
     }
 
     const contentRes = await fetch(fileInfo.download_url, {
-      headers: { 'User-Agent': 'HTMX-GitHub-Visualizer/1.0' }
+      headers: { 
+        'User-Agent': 'HTMX-GitHub-Visualizer/1.0',
+        'Accept': 'application/vnd.github.v3+json'
+      }
     });
 
     if (!contentRes.ok) {
@@ -205,7 +220,7 @@ app.get('/load-file', async (req, res) => {
     const ext = filePath.split('.').pop()?.toLowerCase();
     const isHTML = ['html','htm'].includes(ext);
 
-    // Escapings
+    // Escaping
     let escaped;
     if (isHTML && mode === 'preview') {
       // Minimal escape for srcdoc iframe
@@ -227,7 +242,7 @@ app.get('/load-file', async (req, res) => {
         <button class="btn-mode ${previewBtnClass}" 
                 hx-get="${previewHref}" 
                 hx-target="#main-content" 
-                hx-swap="innerHTML" 
+                hx-swap="innerHTML"
                 hx-push-url="true"
                 ${previewDisabled}>
           📄 Preview
@@ -267,7 +282,7 @@ app.get('/load-file', async (req, res) => {
 
       let extra = '';
       if (mode === 'preview' && !isHTML) {
-        extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">🚫 Preview disponível apenas para arquivos .html/.htm</p>';
+        extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">🚀 Preview disponível apenas para arquivos .html/.htm</p>';
       }
 
       contentHTML = `
