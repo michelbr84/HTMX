@@ -21,7 +21,7 @@ app.get('/greeting', (req, res) => {
     'Ciao, mondo! ',
     'Привет, мир! ',
     'שלום עולם! ',
-    '안녕하세요! ',
+    'مرحبا بالعالم! ',
   ];
 
   const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -29,7 +29,7 @@ app.get('/greeting', (req, res) => {
   res.send(`
     <div class="greeting">
       <p>${randomGreeting}</p>
-      <p>🚀 Saudação especial pra você! </p>
+      <p>😊 Saudação especial pra você! </p>
     </div>
   `);
 });
@@ -41,15 +41,15 @@ async function loadRepoHandler(req, res) {
 
   if (!repoUrl) {
     console.log('Missing repoUrl');
-    return res.status(400).send('<p style="color:red;">🚀 URL do GitHub obrigatória!</p>');
+    return res.status(400).send('<p style="color:red;">😊 URL do GitHub obrigatória!</p>');
   }
 
   // Extract user/repo from URL: https://github.com/user/repo
-  const match = repoUrl.match(/github\.com(?::\/|:)([^\/]+)\/([^\/]+)/);
+  const match = repoUrl.match(/github\.com[\/:]?([^\\/]+)\/([^\\/]+)/);
   console.log('Regex match:', match);
   if (!match) {
     console.log('Invalid repo URL');
-    return res.status(400).send('<p style="color:red;">🚀 URL GitHub inválida! Use: https://github.com/USERNAME/REPO</p>');
+    return res.status(400).send('<p style="color:red;">😊 URL GitHub inválida! Use: https://github.com/USERNAME/REPO</p>');
   }
 
   const [, user, repo] = match;
@@ -74,33 +74,33 @@ async function loadRepoHandler(req, res) {
     const files = await fetchResponse.json();
 
     // Generate HTML for #repo-list with expandable folders
-    let html = `<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">🚀 ${repo}</h4>`;
+    let html = `<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">😊 ${repo}</h4>`;
     html += '<ul>';
 
     files.forEach(file => {
-      const icon = file.type === 'dir' ? '📁' : '📄';
+      const icon = file.type === 'dir' ? '📁 ' : '📄 ';
       if (file.type === 'dir') {
         html += `
-          <details>
-            <summary class="folder-toggle">${icon} ${file.name}</summary>
-            <div class="children" 
-                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
-                 hx-trigger="revealed" 
-                 hx-swap="innerHTML"
-                 hx-indicator="#sidebar-spinner">
-            </div>
-          </details>
+        <details>
+          <summary class="folder-toggle">${icon} ${file.name}</summary>
+          <div class="children" 
+               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
+               hx-trigger="revealed" 
+               hx-swap="innerHTML"
+               hx-indicator="#sidebar-spinner">
+          </div>
+        </details>
         `;
       } else {
         html += `
-          <li>
-            <a class="file-link" 
-               hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-               hx-target="#main-content" 
-               hx-swap="innerHTML">
-               ${icon} ${file.name}
-            </a>
-          </li>
+        <li>
+          <a class="file-link" 
+             hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+             hx-target="#main-content" 
+             hx-swap="innerHTML">
+             ${icon} ${file.name}
+          </a>
+        </li>
         `;
       }
     });
@@ -109,7 +109,7 @@ async function loadRepoHandler(req, res) {
     res.send(html);
   } catch (error) {
     console.error('Load repo error:', error);
-    res.status(500).send(`<p style="color:red;">🚀 Erro ao carregar ${user}/${repo}: ${error.message}</p>`);
+    res.status(500).send(`<p style="color:red;">😊 Erro ao carregar ${user}/${repo}: ${error.message}</p>`);
   }
 }
 
@@ -122,7 +122,7 @@ app.get('/list-dir', async (req, res) => {
   const { user, repo, path = '' } = req.query;
 
   if (!user || !repo) {
-    return res.status(400).send('<ul><li style="color:red;">🚀 Parâmetros inválidos</li></ul>');
+    return res.status(400).send('<ul><li style="color:red;">😊 Parâmetros inválidos</li></ul>');
   }
 
   try {
@@ -143,28 +143,28 @@ app.get('/list-dir', async (req, res) => {
 
     let html = '<ul>';
     items.forEach(item => {
-      const icon = item.type === 'dir' ? '📁' : '📄';
+      const icon = item.type === 'dir' ? '📁 ' : '📄 ';
       if (item.type === 'dir') {
         html += `
-          <details>
-            <summary class="folder-toggle">${icon} ${item.name}</summary>
-            <div class="children" 
-                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
-                 hx-trigger="revealed" 
-                 hx-swap="innerHTML">
-            </div>
-          </details>
+        <details>
+          <summary class="folder-toggle">${icon} ${item.name}</summary>
+          <div class="children" 
+               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
+               hx-trigger="revealed" 
+               hx-swap="innerHTML">
+          </div>
+        </details>
         `;
       } else {
         html += `
-          <li>
-            <a class="file-link" 
-               hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-               hx-target="#main-content" 
-               hx-swap="innerHTML">
-               ${icon} ${item.name}
-            </a>
-          </li>
+        <li>
+          <a class="file-link" 
+             hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+             hx-target="#main-content" 
+             hx-swap="innerHTML">
+             ${icon} ${item.name}
+          </a>
+        </li>
         `;
       }
     });
@@ -172,17 +172,17 @@ app.get('/list-dir', async (req, res) => {
 
     res.send(html);
   } catch (error) {
-    console.error('Error ao listar diretórios:', error);
-    res.status(500).send('<ul><li style="color:red;">🚀 Erro ao carregar pasta</li></ul>');
+    console.error('Erro ao listar diretórios:', error);
+    res.status(500).send('<ul><li style="color:red;">😊 Erro ao carregar pasta</li></ul>');
   }
 });
 
-// 🚀 ETAPA 5-6: Load file content with preview/code split view (always both, no mode toggle)
+// 🚀 ETAPA 5-6: Load file content w/ preview/code split view (always both, no mode toggle)
 app.get('/load-file', async (req, res) => {
   const { path: filePath, user, repo } = req.query;
 
   if (!filePath || !user || !repo) {
-    return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚀 Parâmetros inválidos!</div>');
+    return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">😊 Parâmetros inválidos!</div>');
   }
 
   try {
@@ -201,7 +201,7 @@ app.get('/load-file', async (req, res) => {
     const fileInfo = await fileInfoRes.json();
 
     if (fileInfo.type !== 'file') {
-      return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚀 É um arquivo!</div>');
+      return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">😊 É um arquivo!</div>');
     }
 
     const contentRes = await fetch(fileInfo.download_url, {
@@ -248,9 +248,9 @@ app.get('/load-file', async (req, res) => {
         <div class="preview-container">
           <iframe srcdoc="${escaped}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" frameborder="0"></iframe>
         </div>
-      `;
+        `;
     } else {
-      previewHTML = '<div class="no-preview">Preview disponível apenas para arquivos HTML 🚀</div>';
+      previewHTML = '<div class="no-preview">Preview disponível apenas para arquivos HTML 😊</div>';
       extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">Preview disponível apenas para arquivos .html/.htm</p>';
     }
 
@@ -259,7 +259,7 @@ app.get('/load-file', async (req, res) => {
         <pre><code class="language-${lang}">${escaped}</code></pre>
         ${extra}
       </div>
-    `;
+      `;
 
     // Full template: title + split panels
     const title = `<h2 class="file-title">${filePath}</h2>`;
@@ -278,7 +278,7 @@ app.get('/load-file', async (req, res) => {
     res.send(template);
   } catch (error) {
     console.error('Erro ao carregar arquivo:', error);
-    res.status(500).send(`<div style="color:red; text-align:center; padding:2rem;">🚀 Erro ao carregar ${filePath}: ${error.message}</div>`);
+    res.status(500).send(`<div style="color:red; text-align:center; padding:2rem;">😊 Erro ao carregar ${filePath}: ${error.message}</div>`);
   }
 });
 
