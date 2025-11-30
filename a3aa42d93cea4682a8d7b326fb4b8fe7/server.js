@@ -5,12 +5,12 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files if any
 
-// Serve o arquivo index.html na rota principal
+// Serve index.html on main route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Endpoint para saudação personalizada
+// Endpoint for personalized greeting
 app.get('/greeting', (req, res) => {
   const greetings = [
     'Olá, mundo!',
@@ -33,16 +33,16 @@ app.get('/greeting', (req, res) => {
   `);
 });
 
-// 🚀 ETAPA 1-4: Rota para carregar repositório GitHub e listar arquivos na sidebar
-app.post('/load-repo', async (req, res) => {
-  const { githubUrl } = req.body;
-  
-  if (!githubUrl) {
-    return res.status(400).send('<p style="color:red;">🚀 URL do GitHub é obrigatória!</p>');
+// 🚀 ETAPA 1-4: Load repo + recursive dir listing
+async function loadRepoHandler(req, res) {
+  const repoUrl = req.body.repoUrl || req.query.repoUrl;
+
+  if (!repoUrl) {
+    return res.status(400).send('<p style="color:red;">🚀 URL do GitHub obrigatória!</p>');
   }
 
-  // Extrair user/repo da URL: https://github.com/user/repo 
-  const match = githubUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\?]+)/);
+  // Extract user/repo from URL: https://github.com/user/repo
+  const match = repoUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\?]+)/);
   if (!match) {
     return res.status(400).send('<p style="color:red;">🚀 URL GitHub inválida! Use: https://github.com/USER/REPO</p>');
   }
@@ -64,7 +64,7 @@ app.post('/load-repo', async (req, res) => {
 
     const files = await fetchResponse.json();
 
-    // Gerar HTML para #repo-list com pastas expansíveis
+    // Generate HTML for #repo-list with expandable folders
     let html = `<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">🚀 ${repo}</h4>`;
     html += '<ul>';
 
@@ -72,26 +72,26 @@ app.post('/load-repo', async (req, res) => {
       const icon = file.type === 'dir' ? '📁' : '📄';
       if (file.type === 'dir') {
         html += `
-        <details>
-          <summary class="folder-toggle">${icon} ${file.name}</summary>
-          <div class="children" 
-               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
-               hx-trigger="revealed" 
-               hx-swap="innerHTML"
-               hx-indicator="#sidebar-spinner">
-          </div>
-        </details>
+          <details>
+            <summary class="folder-toggle">${icon} ${file.name}</summary>
+            <div class="children" 
+                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
+                 hx-trigger="revealed" 
+                 hx-swap="innerHTML"
+                 hx-indicator="#sidebar-spinner">
+            </div>
+          </details>
         `;
       } else {
         html += `
-        <li>
-          <a class="file-link" 
-             hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-             hx-target="#main-content" 
-             hx-swap="innerHTML">
-            ${icon} ${file.name}
-          </a>
-        </li>
+          <li>
+            <a class="file-link" 
+               hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+               hx-target="#main-content" 
+               hx-swap="innerHTML">
+              ${icon} ${file.name}
+            </a>
+          </li>
         `;
       }
     });
@@ -102,9 +102,13 @@ app.post('/load-repo', async (req, res) => {
     console.error('Erro ao carregar repo:', error);
     res.status(500).send(`<p style="color:red;">🚀 Erro ao carregar ${user}/${repo}: ${error.message}</p>`);
   }
-});
+}
 
-// 🚀 ETAPA 4: Rota recursiva para listar subpastas
+// Dual support: POST (body) + GET (query) to avoid 404 issues
+app.post('/load-repo', express.json(), loadRepoHandler);
+app.get('/load-repo', loadRepoHandler);
+
+// 🚀 ETAPA 4: Recursive route for subdirectories
 app.get('/list-dir', async (req, res) => {
   const { user, repo, path = '' } = req.query;
 
@@ -133,25 +137,25 @@ app.get('/list-dir', async (req, res) => {
       const icon = item.type === 'dir' ? '📁' : '📄';
       if (item.type === 'dir') {
         html += `
-        <details>
-          <summary class="folder-toggle">${icon} ${item.name}</summary>
-          <div class="children" 
-               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
-               hx-trigger="revealed" 
-               hx-swap="innerHTML">
-          </div>
-        </details>
+          <details>
+            <summary class="folder-toggle">${icon} ${item.name}</summary>
+            <div class="children" 
+                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
+                 hx-trigger="revealed" 
+                 hx-swap="innerHTML">
+            </div>
+          </details>
         `;
       } else {
         html += `
-        <li>
-          <a class="file-link" 
-             hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-             hx-target="#main-content" 
-             hx-swap="innerHTML">
-            ${icon} ${item.name}
-          </a>
-        </li>
+          <li>
+            <a class="file-link" 
+               hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+               hx-target="#main-content" 
+               hx-swap="innerHTML">
+              ${icon} ${item.name}
+            </a>
+          </li>
         `;
       }
     });
@@ -164,7 +168,7 @@ app.get('/list-dir', async (req, res) => {
   }
 });
 
-// 🚀 ETAPA 5-6: Carregar conteúdo do arquivo selecionado
+// 🚀 ETAPA 5-6: Load file content with preview/code toggle
 app.get('/load-file', async (req, res) => {
   const { path: filePath, user, repo, mode = 'preview' } = req.query;
 
@@ -185,7 +189,7 @@ app.get('/load-file', async (req, res) => {
     const fileInfo = await fileInfoRes.json();
 
     if (fileInfo.type !== 'file') {
-      return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚀 Só é um arquivo!</div>');
+      return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚀 Só um arquivo!</div>');
     }
 
     const contentRes = await fetch(fileInfo.download_url, {
@@ -205,7 +209,7 @@ app.get('/load-file', async (req, res) => {
     let escaped;
     if (isHTML && mode === 'preview') {
       // Minimal escape for srcdoc iframe
-      escaped = content.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/`/g, '&#96;');
+      escaped = content.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\\/g, '&amp;');
     } else {
       // Full HTML escape for code view
       escaped = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -231,7 +235,7 @@ app.get('/load-file', async (req, res) => {
         <button class="btn-mode ${codeBtnClass}" 
                 hx-get="/load-file?path=${encodeURIComponent(filePath)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&mode=code" 
                 hx-target="#main-content" 
-                hx-swap="innerHTML" 
+                hx-swap="innerHTML"
                 hx-push-url="true">
           🧱 Código
         </button>
@@ -263,7 +267,7 @@ app.get('/load-file', async (req, res) => {
 
       let extra = '';
       if (mode === 'preview' && !isHTML) {
-        extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">🔸 Preview disponível apenas para arquivos .html/.htm</p>';
+        extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">🚫 Preview disponível apenas para arquivos .html/.htm</p>';
       }
 
       contentHTML = `
@@ -281,7 +285,7 @@ app.get('/load-file', async (req, res) => {
   }
 });
 
-// Iniciar o servidor
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
