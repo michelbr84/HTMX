@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitHub HTMX Visualizer</title>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  
+  <!-- Prism.js for code highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-tomorrow.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/plugins/autoloader/prism-autoloader.min.js"></script>
+  
   <style>
     * {
       margin: 0;
@@ -243,6 +249,47 @@
       font-size: 0.9rem;
     }
 
+    /* Preview and Code View Styles - Etapa 5 */
+    .file-title {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .preview-container {
+      height: 70vh;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin: 1rem 0;
+    }
+
+    .preview-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+    }
+
+    .code-view {
+      max-height: 80vh;
+      overflow: auto;
+      margin: 1rem 0;
+    }
+
+    .code-view pre {
+      margin: 0;
+      padding: 1rem;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
     @media (max-width: 768px) {
       header {
         flex-direction: column;
@@ -281,7 +328,7 @@
   </header>
   <div class="app-container">
     <aside id="sidebar">
-      <h3>📂 Explorar Repositórios</h3>
+      <h3>🚀 Explorar Repositórios</h3>
       <div id="repo-list">
         <p style="color:#666; text-align:center; padding:2rem 0;">Cole uma URL GitHub acima e clique em "Carregar Repo" 🚀</p>
         <div id="sidebar-spinner" class="htmx-indicator">
@@ -289,23 +336,27 @@
         </div>
       </div>
     </aside>
-    <main id="main-content">
+    <main id="main-content" hx-on-htmx:after-swap="if (typeof Prism !== 'undefined') Prism.highlightAll();">
       <div class="content-container">
         <h1>Hello <span class="highlight">World</span>!</h1>
         <p>E aí! Página irada com HTMX. Clica no botão pra uma saudação personalizada! 🚀</p>
+       
         <button class="btn"
-          hx-get="/greeting" 
-          hx-target="#greeting-target" 
-          hx-swap="innerHTML"
-          hx-indicator="#spinner">
+                hx-get="/greeting" 
+                hx-target="#greeting-target" 
+                hx-swap="innerHTML"
+                hx-indicator="#spinner">
           Saudação Personalizada
         </button>
+       
         <div id="spinner" class="htmx-indicator">
           <p>Carregando...</p>
         </div>
+       
         <div id="greeting-target" class="greeting">
           <!-- Conteúdo dinâmico vai aqui -->
         </div>
+       
         <footer>
           <p>Desenvolvido com HTMX & Express.js</p>
         </footer>
