@@ -21,7 +21,7 @@ app.get('/greeting', (req, res) => {
     'Ciao, mondo! ',
     'Привет, мир! ',
     'שלום עולם! ',
-    '안녕, 세계! ',
+    'مرحبا بالعالم! ',
   ];
 
   const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -58,49 +58,49 @@ async function loadRepoHandler(req, res) {
   try {
     const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents`;
 
-    const fetchRepoResponse = await fetch(apiUrl, {
+    const fetchResponse = await fetch(apiUrl, {
       headers: {
         'User-Agent': 'HTMX-GitHub-Visualizer/1.0',
         'Accept': 'application/vnd.github.v3+json'
       }
     });
 
-    console.log('GitHub API status:', fetchRepoResponse.status, apiUrl);
+    console.log('GitHub API status:', fetchResponse.status, apiUrl);
 
-    if (!fetchRepoResponse.ok) {
-      throw new Error(`API Error: ${fetchRepoResponse.status}`);
+    if (!fetchResponse.ok) {
+      throw new Error(`API Error: ${fetchResponse.status}`);
     }
 
-    const files = await fetchRepoResponse.json();
+    const files = await fetchResponse.json();
 
     // Generate HTML for #repo-list with expandable folders
     let html = `<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">🚀 ${repo}</h4>`;
     html += '<ul>';
 
     files.forEach(file => {
-      const icon = file.type === 'dir' ? '📁' : '📄';
+      const icon = file.type === 'dir' ? '📁 ' : '📄 ';
       if (file.type === 'dir') {
         html += `
-          <details>
-            <summary class="folder-toggle">${icon} ${file.name}</summary>
-            <div class="children" 
-                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
-                 hx-trigger="revealed" 
-                 hx-swap="innerHTML"
-                 hx-indicator="#sidebar-spinner">
-            </div>
-          </details>
+        <details>
+          <summary class="folder-toggle">${icon} ${file.name}</summary>
+          <div class="children" 
+               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(file.path)}" 
+               hx-trigger="revealed" 
+               hx-swap="innerHTML"
+               hx-indicator="#sidebar-spinner">
+          </div>
+        </details>
         `;
       } else {
         html += `
-          <li>
-            <a class="file-link" 
-               hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-               hx-target="#main-content" 
-               hx-swap="innerHTML">
-               ${icon} ${file.name}
-            </a>
-          </li>
+        <li>
+          <a class="file-link" 
+             hx-get="/load-file?path=${encodeURIComponent(file.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+             hx-target="#main-content" 
+             hx-swap="innerHTML">
+             ${icon} ${file.name}
+          </a>
+        </li>
         `;
       }
     });
@@ -143,28 +143,28 @@ app.get('/list-dir', async (req, res) => {
 
     let html = '<ul>';
     items.forEach(item => {
-      const icon = item.type === 'dir' ? '📁' : '📄';
+      const icon = item.type === 'dir' ? '📁 ' : '📄 ';
       if (item.type === 'dir') {
         html += `
-          <details>
-            <summary class="folder-toggle">${icon} ${item.name}</summary>
-            <div class="children" 
-                 hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
-                 hx-trigger="revealed" 
-                 hx-swap="innerHTML">
-            </div>
-          </details>
+        <details>
+          <summary class="folder-toggle">${icon} ${item.name}</summary>
+          <div class="children" 
+               hx-get="/list-dir?user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}&path=${encodeURIComponent(item.path)}" 
+               hx-trigger="revealed" 
+               hx-swap="innerHTML">
+          </div>
+        </details>
         `;
       } else {
         html += `
-          <li>
-            <a class="file-link" 
-               hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
-               hx-target="#main-content" 
-               hx-swap="innerHTML">
-               ${icon} ${item.name}
-            </a>
-          </li>
+        <li>
+          <a class="file-link" 
+             hx-get="/load-file?path=${encodeURIComponent(item.path)}&user=${encodeURIComponent(user)}&repo=${encodeURIComponent(repo)}" 
+             hx-target="#main-content" 
+             hx-swap="innerHTML">
+             ${icon} ${item.name}
+          </a>
+        </li>
         `;
       }
     });
@@ -248,9 +248,9 @@ app.get('/load-file', async (req, res) => {
         <div class="preview-container">
           <iframe srcdoc="${escaped}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" frameborder="0"></iframe>
         </div>
-      `;
+        `;
     } else {
-      previewHTML = '<div class="no-preview">Preview disponível apenas para arquivos .html/.htm 🚀</div>';
+      previewHTML = '<div class="no-preview">Preview disponível apenas para arquivos HTML 🚀</div>';
       extra = '<p style="color: #11998e; text-align:center; font-style:italic; margin:1rem 0;">Preview disponível apenas para arquivos .html/.htm</p>';
     }
 
@@ -259,7 +259,7 @@ app.get('/load-file', async (req, res) => {
         <pre><code class="language-${lang}">${escaped}</code></pre>
         ${extra}
       </div>
-    `;
+      `;
 
     // Full template: title + mode toggle + conditional content
     const title = `<h2 class="file-title">${filePath}</h2>`;
@@ -277,10 +277,10 @@ app.get('/load-file', async (req, res) => {
                 hx-target="#main-content" 
                 hx-swap="innerHTML"
                 hx-push-url="true">
-          💻 Código
+          📝 Código
         </button>
       </div>
-    `;
+      `;
 
     let contentHTML;
     if (mode === 'preview') {
@@ -301,7 +301,7 @@ app.get('/load-file', async (req, res) => {
             </div>
           </div>
         </div>
-      `;
+        `;
     }
 
     const template = title + toggleHTML + contentHTML;
