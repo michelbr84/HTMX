@@ -51,7 +51,7 @@ Zero dependências frontend pesadas: puro **HTMX + Split.js + Prism.js**.
 1. **Clone o repo**:
    ```
    git clone https://github.com/michelbr84/HTMX.git
-   cd HTMX/a3aa42d93cea4682a8d7b326fb4b8fe7  # Pasta do app
+   cd HTMX  # Pasta do app
    ```
 
 2. **Instale dependências**:
