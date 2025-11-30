@@ -1,5 +1,4 @@
-const fetch = require("node-fetch");
-
+// Node 18+ já possui fetch global. Não é necessário require.
 // Extrai user e repo de uma URL GitHub
 function extractUserRepo(repoUrl) {
   const regex = /github\.com[\/:]([^\/]+)\/([^\/]+)/;
