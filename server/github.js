@@ -1,8 +1,10 @@
-// Node 18+ já possui fetch global. Não é necessário require.
-// Extrai user e repo de uma URL GitHub
-function extractUserRepo(repoUrl) {
-  const regex = /github\.com[\/:]([^\/]+)\/([^\/]+)/;
+// github.js
+
+// Extrai usuário e repositório da URL do GitHub
+function extrairUserRepo(repoUrl) {
+  const regex = /github\.com[\/:]([^\/]+)\/([^\/]+)(?:\/)?/;
   const match = repoUrl.match(regex);
+
   if (!match) return null;
 
   return {
@@ -11,48 +13,78 @@ function extractUserRepo(repoUrl) {
   };
 }
 
-// Lista arquivos do diretório raiz
-async function fetchRootFiles(user, repo) {
-  const url = `https://api.github.com/repos/${user}/${repo}/contents`;
-  const res = await fetch(url, {
-    headers: { "User-Agent": "HTMX-Visualizer" }
-  });
-  return await res.json();
-}
-
-// Lista arquivos de um diretório específico
-async function fetchDirFiles(user, repo, path) {
+// Lista conteúdo de diretório (raiz ou subpasta)
+async function listarConteudo(user, repo, path = "") {
   const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+
   const res = await fetch(url, {
-    headers: { "User-Agent": "HTMX-Visualizer" }
+    headers: {
+      "User-Agent": "HTMX-Visualizer",
+      "Accept": "application/vnd.github.v3+json",
+      "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`
+    }
   });
+
+  if (!res.ok) {
+    throw new Error(`Erro ao acessar API do GitHub: ${res.status}`);
+  }
+
   return await res.json();
 }
 
-// Baixa conteúdo bruto de um arquivo
-async function fetchFileContent(user, repo, path) {
-  const url = `https://raw.githubusercontent.com/${user}/${repo}/main/${path}`;
-  const res = await fetch(url);
-  return await res.text();
+// Alias (server.js usa este nome)
+async function listarPasta(user, repo, path = "") {
+  return listarConteudo(user, repo, path);
 }
 
-// Remove scripts externos
+// Carrega arquivo bruto a partir de download_url
+async function carregarArquivo(user, repo, path) {
+  const metaUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+
+  const metaRes = await fetch(metaUrl, {
+    headers: {
+      "User-Agent": "HTMX-Visualizer",
+      "Accept": "application/vnd.github.v3+json",
+      "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`
+    }
+  });
+
+  if (!metaRes.ok) {
+    throw new Error(`Erro ao obter metadados: ${metaRes.status}`);
+  }
+
+  const meta = await metaRes.json();
+
+  if (!meta.download_url) {
+    throw new Error("Arquivo não possui download_url.");
+  }
+
+  const rawRes = await fetch(meta.download_url);
+
+  if (!rawRes.ok) {
+    throw new Error(`Erro ao baixar arquivo RAW: ${rawRes.status}`);
+  }
+
+  return await rawRes.text();
+}
+
+// Sanitização para evitar scripts remotos
 function sanitizeHtml(html) {
   return html
-    .replace(/<script[^>]*src=["'][^"']+["'][^>]*><\/script>/gi, "")
-    .replace(/<link[^>]*href=["'][^"']+["'][^>]*>/gi, "");
+    .replace(/<script[^>]*src=["'][^"']*["'][^>]*><\/script>/gi, "")
+    .replace(/<link[^>]*href=["'][^"']*["'][^>]*>/gi, "");
 }
 
-// Verifica se é arquivo HTML
+// Verifica se é HTML
 function isHtmlFile(filename) {
   return filename.endsWith(".html") || filename.endsWith(".htm");
 }
 
 module.exports = {
-  extractUserRepo,
-  fetchRootFiles,
-  fetchDirFiles,
-  fetchFileContent,
+  extrairUserRepo,
+  listarConteudo,
+  listarPasta,
+  carregarArquivo,
   sanitizeHtml,
   isHtmlFile
 };
