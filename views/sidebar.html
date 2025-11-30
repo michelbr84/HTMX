@@ -1,0 +1,28 @@
+<% if (root) { %>
+<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">🔐 <%= repo %></h4>
+<% } %>
+<ul>
+<% files.forEach(file => { %>
+  <% const icon = file.type === 'dir' ? '📁 ' : '📄 '; %>
+  <% if (file.type === 'dir') { %>
+    <details>
+      <summary class="folder-toggle"><%= icon %> <%= file.name %></summary>
+      <div class="children" 
+           hx-get="/list-dir?user=<%= encodeURIComponent(user) %>&repo=<%= encodeURIComponent(repo) %>&path=<%= encodeURIComponent(file.path) %>" 
+           hx-trigger="revealed" 
+           hx-swap="innerHTML"
+           hx-indicator="#sidebar-spinner">
+      </div>
+    </details>
+  <% } else { %>
+    <li>
+      <a class="file-link" 
+         hx-get="/load-file?path=<%= encodeURIComponent(file.path) %>&user=<%= encodeURIComponent(user) %>&repo=<%= encodeURIComponent(repo) %>" 
+         hx-target="#main-content" 
+         hx-swap="innerHTML">
+        <%= icon %> <%= file.name %>
+      </a>
+    </li>
+  <% } %>
+<% }) %>
+</ul>
