@@ -1,0 +1,22 @@
+<h2 class="file-title"><%= filename %></h2>
+<div class="mode-toggle">
+  <button class="btn-mode<%= mode === 'preview' ? ' active' : '' %>" 
+          hx-get="/load-file?path=<%= encodeURIComponent(path) %>&user=<%= encodeURIComponent(user) %>&repo=<%= encodeURIComponent(repo) %>&mode=preview" 
+          hx-target="#main-content" 
+          hx-swap="innerHTML"
+          hx-push-url="true">
+    📄 Preview
+  </button>
+  <button class="btn-mode<%= mode === 'code' ? ' active' : '' %>" 
+          hx-get="/load-file?path=<%= encodeURIComponent(path) %>&user=<%= encodeURIComponent(user) %>&repo=<%= encodeURIComponent(repo) %>&mode=code" 
+          hx-target="#main-content" 
+          hx-swap="innerHTML"
+          hx-push-url="true">
+    📄 Código
+  </button>
+</div>
+<div class="preview-code-container">
+  <div class="preview-container">
+    <iframe class="preview-iframe" srcdoc="<%= content %>" sandbox="allow-scripts allow-same-origin" frameborder="0"></iframe>
+  </div>
+</div>
