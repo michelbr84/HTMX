@@ -1,59 +1,59 @@
-Y29uc3QgZW5jb2RlVVJJQ29tcG9uZW50Q29tcG9uZW50ID0gKHN0cikgPT4g
-ZW5jb2RlVVJJQ29tcG9uZW50KHN0cik7CgovLyBFeHRyYWN0IHVzZXIvcmVw
-byBmcm9tIEdpdEh1YiBVUkwKZnVuY3Rpb24gZXh0cmFpclVzZXJSZXBvKHJl
-cG9VcmwpIHsKICBjb25zdCBtYXRjaCA9IHJlcG9VcmwubWF0Y2goL2dpdGh1
-YlwuY29tW1wvOl0/KFteXC9dKylcLyhbXlwvXSspLyk7CiAgaWYgKCFtYXRj
-aCkgdGhyb3cgbmV3IEVycm9yKCdJbnZhbGlkIHJlcG8gVVJMJyk7CiAgcmV0
-dXJuIFttYXRjaFsxXSwgbWF0Y2hbMl1dOwp9CgovLyBGZXRjaCByb290IGZp
-bGVzCmFzeW5jIGZ1bmN0aW9uIGZldGNoUm9vdEZpbGVzKHVzZXIsIHJlcG8p
-IHsKICBjb25zdCBhcGlVcmwgPSBgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9y
-ZXBvcy8ke3VzZXJ9LyR7cmVwb30vY29udGVudHNgOwogIGNvbnN0IHJlc3Bv
-bnNlID0gYXdhaXQgZmV0Y2goYXBpVXJsLCB7CiAgICBoZWFkZXJzOiB7CiAg
-ICAgICdVc2VyLUFnZW50JzogJ0hUTVgtR2l0SHViLVZpc3VhbGl6ZXIvMS4w
-JywKICAgICAgJ0FjY2VwdCc6ICdhcHBsaWNhdGlvbi92bmQuZ2l0aHViLnYz
-K2pzb24nCiAgICB9CiAgfSk7CiAgaWYgKCFyZXNwb25zZS5vaykgdGhyb3cg
-bmV3IEVycm9yKGBBUEkgRXJyb3I6ICR7cmVzcG9uc2Uuc3RhdHVzfWApOwog
-IHJldHVybiBhd2FpdCByZXNwb25zZS5qc29uKCk7Cn0KCi8vIEZldGNoIGRp
-ciBmaWxlcwphc3luYyBmdW5jdGlvbiBmZXRjaERpckZpbGVzKHVzZXIsIHJl
-cG8sIHBhdGggPSAnJykgewogIGNvbnN0IGFwaVVybCA9IGBodHRwczovL2Fw
-aS5naXRodWIuY29tL3JlcG9zLyR7dXNlcn0vJHtyZXBvfS9jb250ZW50cy8k
-e3BhdGh9YDsKICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGFwaVVy
-bCwgewogICAgaGVhZGVyczogewogICAgICAnVXNlci1BZ2VudCc6ICdIVE1Y
-LUdpdEh1Yi1WaXN1YWxpemVyLzEuMCcsCiAgICAgICdBY2NlcHQnOiAnYXBw
-bGljYXRpb24vdm5kLmdpdGh1Yi52Mytqc29uJwogICAgfQogIH0pOwogIGlm
-ICghcmVzcG9uc2Uub2spIHRocm93IG5ldyBFcnJvcihgQVBJIEVycm9yOiAk
-e3Jlc3BvbnNlLnN0YXR1c31gKTsKICByZXR1cm4gYXdhaXQgcmVzcG9uc2Uu
-anNvbigpOwp9CgovLyBGZXRjaCBmaWxlIGNvbnRlbnQKYXN5bmMgZnVuY3Rp
-b24gZmV0Y2hGaWxlQ29udGVudCh1c2VyLCByZXBvLCBwYXRoKSB7CiAgY29u
-c3QgY29udGVudHNVcmwgPSBgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBv
-cy8ke3VzZXJ9LyR7cmVwb30vY29udGVudHMvJHtlbmNvZGVVUklDb21wb25l
-bnRDb21wb25lbnQocGF0aCl9YDsKICBjb25zdCBmaWxlSW5mb1JlcyA9IGF3
-YWl0IGZldGNoKGNvbnRlbnRzVXJsLCB7CiAgICBoZWFkZXJzOiB7CiAgICAg
-ICdVc2VyLUFnZW50JzogJ0hUTVgtR2l0SHViLVZpc3VhbGl6ZXIvMS4wJywK
-ICAgICAgJ0FjY2VwdCc6ICdhcHBsaWNhdGlvbi92bmQuZ2l0aHViLnYzK2pz
-b24nCiAgICB9CiAgfSk7CiAgaWYgKCFmaWxlSW5mb1Jlcy5vaykgdGhyb3cg
-bmV3IEVycm9yKGBBUEkgRXJyb3I6ICR7ZmlsZUluZm9SZXMuc3RhdHVzfWAp
-OwogIGNvbnN0IGZpbGVJbmZvID0gYXdhaXQgZmlsZUluZm9SZXMuanNvbigp
-OwogIGlmIChmaWxlSW5mby50eXBlICE9PSAnZmlsZScpIHRocm93IG5ldyBF
-cnJvcignTm90IGEgZmlsZScpOwoKICBjb25zdCBjb250ZW50UmVzID0gYXdh
-aXQgZmV0Y2goZmlsZUluZm8uZG93bmxvYWRfdXJsLCB7CiAgICBoZWFkZXJz
-OiB7CiAgICAgICdVc2VyLUFnZW50JzogJ0hUTVgtR2l0SHViLVZpc3VhbGl6
-ZXIvMS4wJywKICAgICAgJ0FjY2VwdCc6ICdhcHBsaWNhdGlvbi92bmQuZ2l0
-aHViLnYzK2pzb24nCiAgICB9CiAgfSk7CiAgaWYgKCFjb250ZW50UmVzLm9r
-KSB0aHJvdyBuZXcgRXJyb3IoYERvd25sb2FkIEVycm9yOiAke2NvbnRlbnRS
-ZXMuc3RhdHVzfWApOwogIHJldHVybiBhd2FpdCBjb250ZW50UmVzLnRleHQo
-KTsKfQoKLy8gU2FuaXRpemUgSFRNTDogcmVtb3ZlIGV4dGVybmFsIHNjcmlw
-dC9saW5rCmZ1bmN0aW9uIHNhbml0aXplSHRtbChodG1sKSB7CiAgLy8gUmVt
-b3ZlIDxzY3JpcHQgc3JjPSJodHRwLi4uIj48L3NjcmlwdD4KICBodG1sID0g
-aHRtbC5yZXBsYWNlKC88c2NyaXB0XGJbXjxdKihzcmNccyo9XHMqWyInXVte
-IiddKmh0dHBzPzpcL1wvW14iJ10qWyInXVtePl0qKVtePF0qPFwvc2NyaXB0
-Pi9naSwgJycpOwogIC8vIFJlbW92ZSA8bGluayByZWw9InN0eWxlc2hlZXQi
-IGhyZWY9Imh0dHAuLi4iPgogIGh0bWwgPSBodG1sLnJlcGxhY2UoLDxsaW5r
-XGJbXjxdKihyZWxccyo9XHMqInN0eWxlc2hlZXQiXHMrW14+XSooaHJlZlxz
-Kj1ccypbIiddW14iJ10qaHR0cHM/OlwvXC9bXiInXSpbIiddW14+XSopW148
-XSpcLz8+L2dpLCAnJyk7CiAgcmV0dXJuIGh0bWw7Cn0KCi8vIENoZWNrIGlm
-IEhUTUwgZmlsZQpmdW5jdGlvbiBpc0h0bWxGaWxlKGV4dCkgewogIHJldHVy
-biBbJ2h0bWwnLCAnaHRtJ10uaW5jbHVkZXMoZXh0KTsKfQoKbW9kdWxlLmV4
-cG9ydHMgPSB7CiAgZXh0cmFpclVzZXJSZXBvLAogIGZldGNoUm9vdEZpbGVz
-LAogIGZldGNoRGlyRmlsZXMsCiAgZmV0Y2hGaWxlQ29udGVudCwKICBzYW5p
-dGl6ZUh0bWwsCiAgaXNIdG1sRmlsZQp9Ow==
+const fetch = require("node-fetch");
+
+// Extrai user e repo de uma URL GitHub
+function extractUserRepo(repoUrl) {
+  const regex = /github\.com[\/:]([^\/]+)\/([^\/]+)/;
+  const match = repoUrl.match(regex);
+  if (!match) return null;
+
+  return {
+    user: match[1],
+    repo: match[2].replace(/\.git$/, "")
+  };
+}
+
+// Lista arquivos do diretório raiz
+async function fetchRootFiles(user, repo) {
+  const url = `https://api.github.com/repos/${user}/${repo}/contents`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "HTMX-Visualizer" }
+  });
+  return await res.json();
+}
+
+// Lista arquivos de um diretório específico
+async function fetchDirFiles(user, repo, path) {
+  const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "HTMX-Visualizer" }
+  });
+  return await res.json();
+}
+
+// Baixa conteúdo bruto de um arquivo
+async function fetchFileContent(user, repo, path) {
+  const url = `https://raw.githubusercontent.com/${user}/${repo}/main/${path}`;
+  const res = await fetch(url);
+  return await res.text();
+}
+
+// Remove scripts externos
+function sanitizeHtml(html) {
+  return html
+    .replace(/<script[^>]*src=["'][^"']+["'][^>]*><\/script>/gi, "")
+    .replace(/<link[^>]*href=["'][^"']+["'][^>]*>/gi, "");
+}
+
+// Verifica se é arquivo HTML
+function isHtmlFile(filename) {
+  return filename.endsWith(".html") || filename.endsWith(".htm");
+}
+
+module.exports = {
+  extractUserRepo,
+  fetchRootFiles,
+  fetchDirFiles,
+  fetchFileContent,
+  sanitizeHtml,
+  isHtmlFile
+};
