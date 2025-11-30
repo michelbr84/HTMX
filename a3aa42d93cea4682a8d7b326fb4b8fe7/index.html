@@ -330,6 +330,55 @@
       transform: none !important;
     }
 
+    /* Preview Controls */
+    .preview-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+
+    .btn-preview-size,
+    .btn-preview-fullscreen {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(to right, #11998e, #38ef7d);
+      color: white;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      font-weight: 500;
+    }
+
+    .btn-preview-size:hover:not(:disabled),
+    .btn-preview-fullscreen:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    }
+
+    .btn-preview-size.active,
+    .btn-preview-fullscreen.active {
+      background: linear-gradient(to right, #0e7a6b, #2dc968);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Resize classes */
+    .preview-container.preview-compact {
+      height: 40vh;
+    }
+
+    .preview-container.preview-normal {
+      height: 70vh;
+    }
+
+    .preview-container.preview-large {
+      height: 90vh;
+    }
+
     @media (max-width: 768px) {
       header {
         flex-direction: column;
@@ -376,8 +425,8 @@
     </aside>
     <main id="main-content" hx-on-htmx:after-swap="if (typeof Prism !== 'undefined') Prism.highlightAll();">
       <div class="content-container">
-        <h1>Hello <span class="highlight">World</span>!</h1>
-        <p>E aí! Páginal irada com HTMX. Clique no botão pra uma saudação personalizada! 🚀</p>
+        <h1>Olá <span class="highlight">World</span>!</h1>
+        <p>E aí! Página irada com HTMX. Clique no botão pra uma saudação personalizada! 🚀</p>
         
         <button class="btn"
                 hx-get="/greeting" 
@@ -401,5 +450,47 @@
       </div>
     </main>
   </div>
+
+  <script>
+    // Preview resize and fullscreen controls
+    document.addEventListener('click', function(e) {
+      const target = e.target;
+      if (!target.matches('.btn-preview-size, .btn-preview-fullscreen')) return;
+
+      const controls = target.closest('.preview-controls');
+      const container = controls ? controls.nextElementSibling : target.closest('.preview-container');
+
+      if (!container || !container.classList.contains('preview-container')) return;
+
+      // Size buttons
+      if (target.matches('.btn-preview-compact')) {
+        container.classList.remove('preview-normal', 'preview-large', 'preview-compact');
+        container.classList.add('preview-compact');
+        updateActive(controls, 'btn-preview-compact');
+      } else if (target.matches('.btn-preview-normal')) {
+        container.classList.remove('preview-compact', 'preview-large', 'preview-normal');
+        container.classList.add('preview-normal');
+        updateActive(controls, 'btn-preview-normal');
+      } else if (target.matches('.btn-preview-large')) {
+        container.classList.remove('preview-compact', 'preview-normal', 'preview-large');
+        container.classList.add('preview-large');
+        updateActive(controls, 'btn-preview-large');
+      } else if (target.matches('.btn-preview-fullscreen')) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          container.requestFullscreen().catch(err => console.error('Erro fullscreen:', err));
+        }
+      }
+    });
+
+    function updateActive(controls, selector) {
+      controls.querySelectorAll('.btn-preview-size').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = controls.querySelector(selector);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // Reset active on mode swap or something, but optional
+  </script>
 </body>
 </html>
