@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -290,6 +291,46 @@
       word-break: break-all;
     }
 
+    /* Mode Toggle - Etapa 6 */
+    .mode-toggle {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+
+    .btn-mode {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.95rem;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(to right, #11998e, #38ef7d);
+      color: white;
+      white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-weight: 500;
+    }
+
+    .btn-mode:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    .btn-mode.active {
+      background: linear-gradient(to right, #0e7a6b, #2dc968);
+      transform: scale(1.02);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .btn-mode:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
     @media (max-width: 768px) {
       header {
         flex-direction: column;
@@ -319,10 +360,10 @@
   <header>
     <input type="text" name="githubUrl" placeholder="Cole URL do GitHub ex: https://github.com/michelbr84/HTMX" />
     <button class="btn" 
-      hx-post="/load-repo" 
-      hx-target="#repo-list" 
-      hx-swap="innerHTML"
-      hx-indicator="#sidebar-spinner">
+            hx-post="/load-repo" 
+            hx-target="#repo-list" 
+            hx-swap="innerHTML"
+            hx-indicator="#sidebar-spinner">
       🚀 Carregar Repo
     </button>
   </header>
@@ -339,7 +380,7 @@
     <main id="main-content" hx-on-htmx:after-swap="if (typeof Prism !== 'undefined') Prism.highlightAll();">
       <div class="content-container">
         <h1>Hello <span class="highlight">World</span>!</h1>
-        <p>E aí! Página irada com HTMX. Clica no botão pra uma saudação personalizada! 🚀</p>
+        <p>E aí! PáGina irada com HTMX. Clique no botão pra uma saudação personalizada! 🚀</p>
        
         <button class="btn"
                 hx-get="/greeting" 
