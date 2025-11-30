@@ -20,31 +20,31 @@ app.get('/greeting', (req, res) => {
     'Ciao, mondo!',
     'Привет, мир!',
     'שלום עולם!',
-    'مرحبا بالعالم'
+    'مرحبا بالعالم',
   ];
 
   const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-
+ 
   res.send(`
     <div class="greeting">
       <p>${randomGreeting}</p>
-      <p>😊 Saudação especial para você!</p>
+      <p>🚀 Saudação especial para você!</p>
     </div>
   `);
 });
 
-// ✅ ETAPA 1-4: Rota para carregar repositório GitHub e listar arquivos na sidebar
+// 🚀 ETAPA 1-4: Rota para carregar repositório GitHub e listar arquivos na sidebar
 app.post('/load-repo', async (req, res) => {
   const { githubUrl } = req.body;
-
+ 
   if (!githubUrl) {
-    return res.status(400).send('<p style="color:red;">🔒 URL do GitHub é obrigatória!</p>');
+    return res.status(400).send('<p style="color:red;">🚨 URL do GitHub é obrigatória!</p>');
   }
 
-  // Extrair user/repo da URL: https://github.com/user/repo
+  // Extrair user/repo da URL: https://github.com/user/repo 
   const match = githubUrl.match(/github\.com[\/:]([^\/]+)\/([^\/\?]+)/);
   if (!match) {
-    return res.status(400).send('<p style="color:red;">🔒 URL GitHub inválida! Use: https://github.com/USUARIO/REPO</p>');
+    return res.status(400).send('<p style="color:red;">🚨 URL GitHub inválida! Use: https://github.com/USER/REPO</p>');
   }
 
   const [, user, repo] = match;
@@ -65,7 +65,7 @@ app.post('/load-repo', async (req, res) => {
     const files = await fetchResponse.json();
 
     // Gerar HTML para #repo-list com pastas expansíveis
-    let html = `<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">📂 ${repo}</h4>`;
+    let html = `<h4 style="margin-bottom:1rem;color:#333;font-size:1.1rem;">🚀 ${repo}</h4>`;
     html += '<ul>';
 
     files.forEach(file => {
@@ -100,16 +100,16 @@ app.post('/load-repo', async (req, res) => {
     res.send(html);
   } catch (error) {
     console.error('Erro ao carregar repo:', error);
-    res.status(500).send(`<p style="color:red;">🔒 Erro ao carregar ${user}/${repo}: ${error.message}</p>`);
+    res.status(500).send(`<p style="color:red;">🚨 Erro ao carregar ${user}/${repo}: ${error.message}</p>`);
   }
 });
 
-// ✅ ETAPA 4: Rota recursiva para listar subpastas
+// 🚀 ETAPA 4: Rota recursiva para listar subpastas
 app.get('/list-dir', async (req, res) => {
   const { user, repo, path = '' } = req.query;
 
   if (!user || !repo) {
-    return res.status(400).send('<ul><li style="color:red;">❌ Parâmetros inválidos</li></ul>');
+    return res.status(400).send('<ul><li style="color:red;">🚨 Parâmetros inválidos</li></ul>');
   }
 
   try {
@@ -160,20 +160,81 @@ app.get('/list-dir', async (req, res) => {
     res.send(html);
   } catch (error) {
     console.error('Erro ao listar diretório:', error);
-    res.status(500).send('<ul><li style="color:red;">❌ Erro ao carregar pasta</li></ul>');
+    res.status(500).send('<ul><li style="color:red;">🚨 Erro ao carregar pasta</li></ul>');
   }
 });
 
-// Placeholder para /load-file (Etapas 5-6 futuras)
-app.get('/load-file', (req, res) => {
-  const { path, user, repo, mode = 'preview' } = req.query;
-  res.send(`
-    <div class="content-container">
-      <h1>🚧 Em construção</h1>
-      <p>Preview/Código deste arquivo em breve!<br>
-      Path: <strong>${path}</strong> (${user}/${repo}) | Mode: ${mode}</p>
-    </div>
-  `);
+// ✅ ETAPA 5: Carregar conteúdo do arquivo selecionado
+app.get('/load-file', async (req, res) => {
+  const { path: filePath, user, repo } = req.query;
+
+  if (!filePath || !user || !repo) {
+    return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚨 Parâmetros inválidos!</div>');
+  }
+
+  try {
+    const contentsUrl = `https://api.github.com/repos/${user}/${repo}/contents/${encodeURIComponent(filePath)}`;
+    const fileInfoRes = await fetch(contentsUrl, {
+      headers: { 'User-Agent': 'HTMX-GitHub-Visualizer/1.0' }
+    });
+
+    if (!fileInfoRes.ok) {
+      throw new Error(`API Error: ${fileInfoRes.status}`);
+    }
+
+    const fileInfo = await fileInfoRes.json();
+
+    if (fileInfo.type !== 'file') {
+      return res.status(400).send('<div style="color:red; text-align:center; padding:2rem;">🚨 Não é um arquivo!</div>');
+    }
+
+    const contentRes = await fetch(fileInfo.download_url, {
+      headers: { 'User-Agent': 'HTMX-GitHub-Visualizer/1.0' }
+    });
+
+    if (!contentRes.ok) {
+      throw new Error(`Download Error: ${contentRes.status}`);
+    }
+
+    let content = await contentRes.text();
+
+    const ext = filePath.split('.').pop()?.toLowerCase();
+
+    if (['html', 'htm'].includes(ext)) {
+      // Minimal escape for srcdoc iframe
+      content = content.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/`/g, '&#96;');
+      res.send(`
+        <h2 class="file-title">📄 Preview: ${filePath}</h2>
+        <div class="preview-container">
+          <iframe srcdoc="${content}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" frameborder="0"></iframe>
+        </div>
+      `);
+    } else {
+      // Full HTML escape for code view
+      content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      const langMap = {
+        js: 'javascript', jsx: 'jsx', ts: 'typescript', tsx: 'tsx',
+        css: 'css', scss: 'scss', less: 'less',
+        json: 'json',
+        md: 'markdown', mdx: 'markdown',
+        py: 'python', rb: 'ruby', go: 'go', rs: 'rust', java: 'java',
+        sh: 'bash', yaml: 'yaml', yml: 'yaml',
+        txt: 'text', log: 'text'
+      };
+      const lang = langMap[ext] || 'text';
+
+      res.send(`
+        <h2 class="file-title">🧱 Código: ${filePath}</h2>
+        <div class="code-view">
+          <pre><code class="language-${lang}">${content}</code></pre>
+        </div>
+      `);
+    }
+  } catch (error) {
+    console.error('Erro ao carregar arquivo:', error);
+    res.status(500).send(`<div style="color:red; text-align:center; padding:2rem;">🚨 Erro ao carregar ${filePath}: ${error.message}</div>`);
+  }
 });
 
 // Iniciar o servidor
